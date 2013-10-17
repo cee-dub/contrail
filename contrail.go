@@ -2,6 +2,27 @@
 
 // Package contrail implements thin wrappers around glog to add useful
 // properties to logged messages.
+//
+// Example (assuming the date is 2006-01-02 15:04:05):
+//	// Log messages with a context tag of "trackme"
+//	log := contrail.New("trackme")
+//	log.Warningln("I can log stuff, neat")
+//	// Output: W0102 15:04:05.678901 threadid contrail.go:10 ctx="trackme"] I can log stuff, neat
+//
+// Log output is buffered and written periodically using Flush. Programs
+// should call Flush before exiting to guarantee all log output is written.
+//
+// If you need to log to an io.Writer w instead of auto-rotated files, use
+// contrail.NewWriter(w).
+//
+// Example of tracing:
+//	// Follow a specific identifier as it is handled in some part of your code.
+//	// It maintains the context of the parent.
+//	tracer := log.NewTrace('some-identifier')
+//	tracer.Errorln("unexpected error")
+//	// Output: E0102 15:04:05.678901 threadid contrail.go:17 ctx="trackme" trace="some-identifier"] unexpected error
+//
+// The above examples also apply to any Logger returned by NewWriter.
 package contrail
 
 import (
@@ -14,8 +35,11 @@ import (
 // Logger is the set of logging methods supported by all contrail logger types.
 // See glog's documentation for more detail.
 type Logger interface {
+	// NewTrace returns a logger that includes trace="id" in logged messages.
+	NewTrace(id string) *log
+
 	// HeaderTag returns the logging tag in use by the Logger. Useful to integrate
-	// with other logging systems.
+	// with other logging systems so tagged output can be matched.
 	HeaderTag() string
 
 	// V is used to protect verbose logs from printing unless enabled.
