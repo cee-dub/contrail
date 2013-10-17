@@ -23,8 +23,21 @@ func TestNewWriter(t *testing.T) {
 	b := new(bytes.Buffer)
 	l := NewWriter("module", b)
 	l.Info("test")
-	if !strings.Contains(b.String(), `ctx="module"]`) {
+	if !strings.Contains(b.String(), `ctx="module"] test`) {
 		t.Errorf("expected ctx in log: %s", b.String())
+	}
+}
+
+func TestVLogging(t *testing.T) {
+	b := new(bytes.Buffer)
+	l := NewWriter("module", b)
+	l.V(0).Info("test") // same as Info without V
+	if !strings.Contains(b.String(), `ctx="module"] test`) {
+		t.Errorf("expected ctx in log: %s", b.String())
+	}
+	l.V(1).Info("V") // higher verbosity not set
+	if strings.Contains(b.String(), `ctx="module"] V`) {
+		t.Errorf("unexpected verbose message in log: %s", b.String())
 	}
 }
 
@@ -32,7 +45,7 @@ func TestNewTrace(t *testing.T) {
 	b := new(bytes.Buffer)
 	l := NewWriter("module", b).NewTrace("trace-id")
 	l.Info("test")
-	if !strings.Contains(b.String(), `ctx="module" trace="trace-id"]`) {
+	if !strings.Contains(b.String(), `ctx="module" trace="trace-id"] test`) {
 		t.Errorf("expected ctx and trace in log: %s", b.String())
 	}
 }
