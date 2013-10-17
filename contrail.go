@@ -14,11 +14,16 @@ import (
 // Logger is the set of logging methods supported by all contrail logger types.
 // See glog's documentation for more detail.
 type Logger interface {
-	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
+	// HeaderTag returns the logging tag in use by the Logger. Useful to integrate
+	// with other logging systems.
+	HeaderTag() string
 
-	Info(args ...interface{})
-	Infoln(args ...interface{})
-	Infof(format string, args ...interface{})
+	// V is used to protect verbose logs from printing unless enabled.
+	V(level glog.Level) glog.TagVerbose
+
+	InfoLogger
+
+	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
 	Warning(args ...interface{})
 	Warningln(args ...interface{})
 	Warningf(format string, args ...interface{})
@@ -28,6 +33,15 @@ type Logger interface {
 	Fatal(args ...interface{})
 	Fatalln(args ...interface{})
 	Fatalf(format string, args ...interface{})
+}
+
+// InfoLogger is the subset of logging methods pertaining to more verbose logging.
+type InfoLogger interface {
+	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
+
+	Info(args ...interface{})
+	Infoln(args ...interface{})
+	Infof(format string, args ...interface{})
 }
 
 // implementation of Logger interface, via embedded *glog.Tag
@@ -60,6 +74,11 @@ func (l *log) NewTrace(id string) *log {
 		name: l.name,
 		Tag:  l.Tag.New(format(l.name, id)),
 	}
+}
+
+// HeaderTag is part of the Logger interface.
+func (l *log) HeaderTag() string {
+	return l.Tag.String()
 }
 
 // always include ctx="ctx" and add trace="trace" if necessary.
