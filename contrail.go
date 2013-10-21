@@ -38,6 +38,7 @@
 package contrail
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 
@@ -123,4 +124,20 @@ func format(ctx, trace string) string {
 		return fmt.Sprintf("ctx=%q", ctx)
 	}
 	return fmt.Sprintf("ctx=%q trace=%q", ctx, trace)
+}
+
+// LogWriter adapts a log-level function (Infoln, Warninln, etc.) to io.Writer.
+func LogWriter(logFunc func(args ...interface{})) *logWriter {
+	return &logWriter{f: logFunc}
+}
+
+type logWriter struct {
+	f func(args ...interface{})
+}
+
+func (l *logWriter) Write(p []byte) (int, error) {
+	for _, line := range bytes.Split(p, []byte{'\n'}) {
+		l.f(string(line))
+	}
+	return len(p), nil
 }

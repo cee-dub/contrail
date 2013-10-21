@@ -60,3 +60,12 @@ func TestCallerLocation(t *testing.T) {
 		t.Errorf("expected callsite %s in log: %s", callsite, b.String())
 	}
 }
+
+func TestLogWriter(t *testing.T) {
+	b := new(bytes.Buffer)
+	l := NewWriter("module", b)
+	LogWriter(l.Infoln).Write([]byte("test"))
+	if !strings.Contains(b.String(), `ctx="module"] test`) {
+		t.Errorf("expected ctx in log: %s", b.String())
+	}
+}
