@@ -69,3 +69,12 @@ func TestLogWriter(t *testing.T) {
 		t.Errorf("expected ctx in log: %s", b.String())
 	}
 }
+
+func TestInterfaceValidity(t *testing.T) {
+	b := new(bytes.Buffer)
+	takesLogger := func(l Logger) {}
+	takesLogger(New("module"))
+	w := NewWriter("module", b)
+	takesLogger(w)
+	takesLogger(w.NewTrace("trace_id"))
+}

@@ -58,6 +58,10 @@ type Logger interface {
 	// V is used to protect verbose logs from printing unless enabled.
 	V(level glog.Level) glog.TagVerbose
 
+	// Allows setting the threshold for logs to also be written to os.Stderr.
+	// Acceptable levels: "FATAL", "ERROR" (the default), "WARNING", and "INFO"
+	SetStderrThreshold(string) error
+
 	InfoLogger
 
 	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
