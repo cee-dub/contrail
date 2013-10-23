@@ -64,6 +64,9 @@ type Logger interface {
 
 	InfoLogger
 
+	// Allow a differnt threshold to be set on the tag.
+	SetStdErrThreshold(string) error
+
 	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
 	Warning(args ...interface{})
 	Warningln(args ...interface{})
