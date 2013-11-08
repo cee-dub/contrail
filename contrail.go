@@ -93,27 +93,33 @@ type log struct {
 
 // New returns a logger that includes ctx="name" in logged messages.
 func New(name string) *log {
+	t := glog.NewTag(format(name, ""))
+	t.SetStderrThreshold("FATAL")
 	return &log{
 		name: name,
-		Tag:  glog.NewTag(format(name, "")),
+		Tag:  t,
 	}
 }
 
 // NewWriter returns a logger writing all messages to w that includes ctx="name"
 // in logged messages.
 func NewWriter(name string, w io.Writer) *log {
+	t := glog.NewTagWriter(format(name, ""), w)
+	t.SetStderrThreshold("FATAL")
 	return &log{
 		name: name,
-		Tag:  glog.NewTagWriter(format(name, ""), w),
+		Tag:  t,
 	}
 }
 
 // NewTrace returns a logger based on l and its ctx name, that also includes
 // trace="id" in logged messages.
 func (l *log) NewTrace(id string) *log {
+	t := l.Tag.New(format(l.name, id))
+	t.SetStderrThreshold("FATAL")
 	return &log{
 		name: l.name,
-		Tag:  l.Tag.New(format(l.name, id)),
+		Tag:  t,
 	}
 }
 
