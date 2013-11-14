@@ -49,7 +49,7 @@ import (
 // See glog's documentation for more detail.
 type Logger interface {
 	// NewTrace returns a logger that includes trace="id" in logged messages.
-	NewTrace(id string) *log
+	NewTrace(id string) Logger
 
 	// HeaderTag returns the logging tag in use by the Logger. Useful to integrate
 	// with other logging systems so tagged output can be matched.
@@ -76,7 +76,8 @@ type Logger interface {
 	Fatalf(format string, args ...interface{})
 }
 
-// InfoLogger is the subset of logging methods pertaining to more verbose logging.
+// InfoLogger is the subset of Info* logging methods. Both Logger and glog.V
+// implement this interface.
 type InfoLogger interface {
 	// These function signatures Copyright 2013 Google Inc. All Rights Reserved.
 
@@ -92,7 +93,7 @@ type log struct {
 }
 
 // New returns a logger that includes ctx="name" in logged messages.
-func New(name string) *log {
+func New(name string) Logger {
 	return &log{
 		name: name,
 		Tag:  glog.NewTag(format(name, "")),
@@ -101,7 +102,7 @@ func New(name string) *log {
 
 // NewWriter returns a logger writing all messages to w that includes ctx="name"
 // in logged messages.
-func NewWriter(name string, w io.Writer) *log {
+func NewWriter(name string, w io.Writer) Logger {
 	return &log{
 		name: name,
 		Tag:  glog.NewTagWriter(format(name, ""), w),
@@ -110,7 +111,7 @@ func NewWriter(name string, w io.Writer) *log {
 
 // NewTrace returns a logger based on l and its ctx name, that also includes
 // trace="id" in logged messages.
-func (l *log) NewTrace(id string) *log {
+func (l *log) NewTrace(id string) Logger {
 	return &log{
 		name: l.name,
 		Tag:  l.Tag.New(format(l.name, id)),
@@ -131,7 +132,7 @@ func format(ctx, trace string) string {
 }
 
 // LogWriter adapts a log-level function (Infoln, Warninln, etc.) to io.Writer.
-func LogWriter(logFunc func(args ...interface{})) *logWriter {
+func LogWriter(logFunc func(args ...interface{})) io.Writer {
 	return &logWriter{f: logFunc}
 }
 
