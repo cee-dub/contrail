@@ -131,7 +131,8 @@ func format(ctx, trace string) string {
 	return fmt.Sprintf("ctx=%q trace=%q", ctx, trace)
 }
 
-// LogWriter adapts a log-level function (Infoln, Warninln, etc.) to io.Writer.
+// LogWriter adapts a log-level function (Infoln, Warninln, etc.) to io.Writer,
+// preserving the correct call site in the log header written to w.
 func LogWriter(logFunc func(args ...interface{})) io.Writer {
 	return &logWriter{f: logFunc}
 }
